@@ -1,7 +1,11 @@
 const express = require('express');
 const bcrypt = require("bcrypt");
+const createDB = require("../config/db");
 const {validateName,validateEmail,validatePassword} = require("../utils/validators.js")
 
+createDB.sync().then(() => {
+  console.log("DB is running");
+})
 const router = express.Router();
 let users = {};
 router.post("/signup", async (req,res)=>{
