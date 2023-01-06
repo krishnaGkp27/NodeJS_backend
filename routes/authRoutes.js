@@ -3,39 +3,45 @@ const bcrypt = require("bcrypt");
 
 const createDB = require("../config/db");
 const {validateName,validateEmail,validatePassword} = require("../utils/validators.js")
-const userModel = require("../models/userModels");
+const user = require("../models/userModels");
 
 createDB.sync().then(() => {
   console.log("DB is running");
 })
+
 const router = express.Router();
-let users = {};
+
 router.post("/signup", async (req,res)=>{
   try{
     const {name, email, password} = req.body;
     console.log(name, email, password);
-    const userExists = users.hasOwnProperty(email);
+    const userExists = await user.findOne({
+      where: { email }
+    });
     
     if(userExists){
-      res.send("User already exists");
+      return res.status(403).send("User already exists");
     }
     
     if(!validateName(name)){
-      res.send("Invalid name");
+      return res.send("Invalid name");
     }
     
     if(!validateEmail(email)){
-      res.send("Invalid email");
+     return res.send("Invalid email");
     }
 
     if(!validatePassword(password)){
-      res.send("Invalid password");
+      return res.send("Invalid password");
     }
     const hashedPassword = await bcrypt.hash(password,10);
-    users[email] = {name , password : hashedPassword};
-    res.send("User successfully created");
-    console.log(email,password,hashedPassword,name);
-    } catch(e){
+    addNewUser = { name, email, password: hashedPassword }
+    
+    user.create(addNewUser);
+    
+    return res.send("User successfully created");
+    
+  } catch (e) {
       res.send(e);
     }
   }
