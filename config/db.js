@@ -1,4 +1,3 @@
-const { create } = require("domain");
 const { Sequelize } = require("sequelize");
 
 const createDB = new Sequelize("test", "User", "Pass", {
